@@ -51,14 +51,14 @@ if __name__ == '__main__':
     dt = dx / c
 
     # Положение датчика, регистрирующего поле
-    probePos = 100
+    probePos = 300
 
     # Положение источника
     sourcePos = 250
 
     # Параметры поля
     mu = 1.0
-    eps = 1.0
+    eps = 6.0
 
     Ez = np.zeros(maxSize)
     Hy = np.zeros(maxSize - 1)
