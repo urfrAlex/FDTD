@@ -15,7 +15,7 @@ def txt(x,y):
        f.write(str(x[n])+prob*4+str(y[n]) + '\n')
    f.close()
 
-#Сферическая фуекция Бесселя 3-го рода
+#Сферическая функция Бесселя 3-го рода
 def hn(n, x):
     return jn(n, x) + 1j * yn(n, x)
 
