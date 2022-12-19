@@ -7,7 +7,7 @@
 '''
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.fft as fft
+from numpy.fft import fft, fftshift
 
 
 def Signal(m,q, name):
@@ -44,11 +44,11 @@ if __name__ == '__main__':
     maxSize = 500
 
     # Шаг по пространству
-    dx = l / maxSize
+    dx = 1e-3
 
     # Шаг по времени
     c = 3*10**8
-    dt = dx / c
+    dt = Sc * dx / c
 
     # Положение датчика, регистрирующего поле
     probePos = 300
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     ax.set_ylim(-1.1, 1.1)
 
     # Установка меток по осям
-    ax.set_xlabel('Длина поля, см')
+    ax.set_xlabel('x, см')
     ax.set_ylabel('Ez, В/м')
 
     # Включить сетку на графике
@@ -120,17 +120,24 @@ if __name__ == '__main__':
 
         # Регистрация поля в точке
         probeTimeEz[q] = Ez[probePos]
-
         if q % 10 == 0:
-            # Обновить данные на графике
+            plt.title(format(q * dt * 1e9, '.3f') + ' нc')
             line.set_ydata(Ez)
             fig.canvas.draw()
             fig.canvas.flush_events()
 
-        plt.title(str(round((q + 1) * 100 / maxTime)))
-
     # Отключить интерактивный режим по завершению анимации
     plt.ioff()
+    
+    # Расчёт спектра сигнала
+    EzSpec = fftshift(np.abs(fft(probeTimeEz)))
+
+    # Рассчёт шага частоты
+    df = 1.0 / (maxTime * dt)
+    # Рассчёт частотной сетки
+    freq = np.arange(-maxTime / 2 , maxTime / 2 )*df
+    # Оформляем сетку
+    tlist = np.arange(0, maxTime * dt, dt) 
 
     # Отображение сигнала, сохраненного в датчике
     tlist = np.arange(maxTime)
@@ -143,16 +150,12 @@ if __name__ == '__main__':
     
     # Спектр сигнала
     fig, ax = plt.subplots()
-    i = np.arange(maxTime)
-    spectr_exit = fft.fft(probeTimeEz) / len(i)
-    spectr_entrance = fft.fft(Signal(0, i, name_signal)) / len(i)
-    AS_exit = np.abs(spectr_exit)
-    AS_entrance = np.abs(spectr_entrance)
-    ax.plot(i / dt * 10 ** -9, AS_entrance)
-    ax.plot(i / dt * 10 ** -9, AS_exit)
+    ax.plot(freq, EzSpec / np.max(EzSpec))
     ax.set_xlabel('Частота, ГГц')
-    ax.set_ylabel('Вс/м')
-    ax.set_xlim(0, 0.4 * 10 ** 2)
+    ax.set_ylabel('|S| / |Smax|, б/р')
+    ax.set_xlim(0, 10e9)
+    ax.set_ylim(0, 1.1)
     ax.grid()
     plt.show()
    
+
